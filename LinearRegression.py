@@ -9,7 +9,7 @@ class LinearRegression:
         self.learning_rate = 0
         self.iterations = 0
 
-    def crude_fit(self, learning_rate = 0.5): # doesn't work for negative gradients
+    def crude_fit(self, learning_rate = 0.5): 
         self.learning_rate = learning_rate
         # first we get the initial SSE with our initialised m and b variables
         initial_SSE = self.sum_of_squared_differences(self.m, self.b)
@@ -18,8 +18,55 @@ class LinearRegression:
         # now lets calculate the SSE with the new b value
         new_b_SSE = self.sum_of_squared_differences(self.m, b_mod)
         # now lets calculate the difference between the initial and new SSE
-        diff = initial_SSE - new_b_SSE
-        # for now, we will return whether the 
+        error_direction = self.error_direction(initial_SSE, new_b_SSE)
+        # now, if the error decreased, then we should keep adding values until the error increases, and if the error increased, then we should minus value until the error increases
+        if error_direction == ErrorDirection.ERROR_DECREASED:
+            while error_direction != ErrorDirection.ERROR_INCREASED:
+                initial_SSE = new_b_SSE
+                self.b = b_mod
+                b_mod = self.b + learning_rate
+                new_b_SSE = self.sum_of_squared_differences(self.m, b_mod)
+                error_direction = self.error_direction(initial_SSE, new_b_SSE)
+        elif error_direction == ErrorDirection.ERROR_INCREASED:
+            b_mod = self.b - learning_rate
+            new_b_SSE = self.sum_of_squared_differences(self.m, b_mod)
+            error_direction = self.error_direction(initial_SSE, new_b_SSE)
+            while error_direction != ErrorDirection.ERROR_INCREASED:
+                initial_SSE = new_b_SSE
+                self.b = b_mod
+                b_mod = self.b - learning_rate
+                new_b_SSE = self.sum_of_squared_differences(self.m, b_mod)
+                error_direction = self.error_direction(initial_SSE, new_b_SSE)
+        print(self.b)
+
+        # first we get the initial SSE with our initialised m and b variables
+        initial_SSE = self.sum_of_squared_differences(self.m, self.b)
+        # lets add a little bit to the learning_rate
+        m_mod = self.m + learning_rate
+        # now lets calculate the SSE with the new b value
+        new_m_SSE = self.sum_of_squared_differences(m_mod, self.b)
+        # now lets calculate the difference between the initial and new SSE
+        error_direction = self.error_direction(initial_SSE, new_m_SSE)
+        # now, if the error decreased, then we should keep adding values until the error increases, and if the error increased, then we should minus value until the error increases
+        if error_direction == ErrorDirection.ERROR_DECREASED:
+            while error_direction != ErrorDirection.ERROR_INCREASED:
+                initial_SSE = new_m_SSE
+                self.m = m_mod
+                m_mod = self.m + learning_rate
+                new_m_SSE = self.sum_of_squared_differences(m_mod, self.b)
+                error_direction = self.error_direction(initial_SSE, new_m_SSE)
+        elif error_direction == ErrorDirection.ERROR_INCREASED:
+            m_mod = self.m - learning_rate
+            new_m_SSE = self.sum_of_squared_differences(m_mod, self.b)
+            error_direction = self.error_direction(initial_SSE, new_m_SSE)
+            while error_direction != ErrorDirection.ERROR_INCREASED:
+                initial_SSE = new_m_SSE
+                self.m = m_mod
+                m_mod = self.m - learning_rate
+                new_m_SSE = self.sum_of_squared_differences(m_mod, self.b)
+                error_direction = self.error_direction(initial_SSE, new_m_SSE)
+        print(self.m)
+
 
     def standard_fit(self):
         num_points = len(list(self.points))
