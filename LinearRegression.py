@@ -8,28 +8,27 @@ class LinearRegression:
         self.b = 0
         self.points = []
         self.learning_rate = 0.0001
-        self.iterations = 1000
+        self.max_iterations = 1000
 
     def crude_fit(self):
-        x = np.array([point[0] for point in self.points])
-        y = np.array([point[1] for point in self.points])
-        n = len(self.points)
-        print(n)
+       x = np.array([point[0] for point in self.points])
+       y = np.array([point[1] for point in self.points])
+       n = len(self.points)
 
-        for _ in range(self.iterations):
-            y_pred = self.m * x + self.b
-            error = y_pred - y
-            m_gradient = (2 / n) * np.sum(error * x)
-            b_gradient = (2 / n) * np.sum(error)
+       for i in range(self.max_iterations):
+           y_predict = self.m * x + self.b
+           error = y - y_predict
 
-            self.m = self.m - self.learning_rate * m_gradient
-            self.b = self.b - self.learning_rate * b_gradient
+           b_gradient = (- 2 / n) * np.sum(error)
+           m_gradient = (- 2 / n) * np.sum(x * error)
 
-            new_error = np.sum((y - (self.m * x + self.b)) ** 2)
+           self.b = self.b - self.learning_rate * b_gradient
+           self.m = self.m - self.learning_rate * m_gradient
 
-            if new_error < 0.0001:
-                break
+           new_error = np.sum((y - self.m * x - self.b) ** 2)
 
+           if new_error < 0.0001:
+               break
 
     def standard_fit(self):
         num_points = len(list(self.points))
