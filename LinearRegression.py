@@ -9,48 +9,28 @@ class LinearRegression:
         self.learning_rate = 0
         self.iterations = 0
 
-    def crude_fit(self, learning_rate = 0.5):
+    def crude_fit(self, learning_rate = 0.5): # doesn't work for negative gradients
         self.learning_rate = learning_rate
+        # first we get the initial SSE with our initialised m and b variables
         initial_SSE = self.sum_of_squared_differences(self.m, self.b)
-        new_b = self.b + learning_rate
-        mod_b_SSE = self.sum_of_squared_differences(self.m, new_b)
-        b_error_direction = self.error_direction(initial_SSE, mod_b_SSE)
-        final_b = self.find_b_crude(initial_SSE, b_error_direction)
-        new_m = self.m + learning_rate
-        mod_m_SSE = self.sum_of_squared_differences(new_m, self.b)
-        m_error_direction = self.error_direction(initial_SSE, mod_m_SSE)
-        final_m = self.find_m_crude(initial_SSE, m_error_direction)
-        print(f"B-Value: {final_b}")
-        print(f"M-value: {final_m}")
-        print(f"Total iterations: {self.iterations}")
-
-    def find_b_crude(self, current_SSE: float, error_direction: ErrorDirection):
-        self.iterations += 1
-        new_b = self.b + self.learning_rate * (-error_direction.value)
-        mod_b_SSE = self.sum_of_squared_differences(self.m, new_b)
-        b_error_direction = self.error_direction(current_SSE, mod_b_SSE)
-        if b_error_direction == ErrorDirection.ERROR_INCREASED:
-            return self.b
-        else:
-            self.b = new_b
-            return self.find_b_crude(mod_b_SSE, error_direction)
-    
-    def find_m_crude(self, current_SSE: float, error_direction: ErrorDirection):
-        self.iterations += 1
-        new_m = self.m + self.learning_rate * (-error_direction.value)
-        mod_m_SSE = self.sum_of_squared_differences(new_m, self.b)
-        m_error_direction = self.error_direction(current_SSE, mod_m_SSE)
-        if m_error_direction == ErrorDirection.ERROR_INCREASED:
-            return self.m
-        else:
-            self.m = new_m
-            return self.find_m_crude(mod_m_SSE, error_direction)
-
+        # lets add a little bit to the learning_rate
+        b_mod = self.b + learning_rate
+        # now lets calculate the SSE with the new b value
+        new_b_SSE = self.sum_of_squared_differences(self.m, b_mod)
+        # now lets calculate the difference between the initial and new SSE
+        diff = initial_SSE - new_b_SSE
+        # for now, we will return whether the 
 
     def standard_fit(self):
-        # minimising sum of square differences
-        SSE = self.sum_of_squared_differences()
-        return SSE
+        num_points = len(list(self.points))
+        sum_of_y = sum([y for x, y in self.points])
+        sum_of_x = sum([x for x, y in self.points])
+        sum_of_x_squared = sum([x**2 for x, y in self.points])
+        sum_of_product_of_x_and_y = sum([x*y for x, y in self.points])
+
+        self.m = (num_points * sum_of_product_of_x_and_y - sum_of_x * sum_of_y) / (num_points * sum_of_x_squared - sum_of_x ** 2)
+        self.b = (sum_of_y - self.m * sum_of_x) / num_points
+
     
     def experimental_fit(x, y):
         # minimising perpendicular distance to line
